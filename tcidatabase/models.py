@@ -1,14 +1,14 @@
 import datetime
-import hashlib
 
 from . import db
+from .utils import generate_key
 
 
 class User(db.Document):
     firstname = db.StringField()
     lastname = db.StringField()
     email = db.EmailField()
-    roles = db.ListField()
+    roles = db.ListField(db.StringField())
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
 
     def __str__(self):
@@ -25,7 +25,7 @@ class Token(db.Document):
                          required=True)
     name = db.StringField(max_length=100)
     comment = db.StringField()
-    creation_date = db.DateTimeField(datetime.datetime.utcnow)
+    creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
     usage_date = db.DateTimeField()
 
     def __str__(self):
@@ -44,9 +44,9 @@ class Token(db.Document):
         self.save()
 
     def save(self, *args, **kwargs):
+        if not self.creation_date:
+            self.creation_date = datetime.datetime.utcnow()
         if not self.key:
-            sha = hashlib.md5(str(str(self.user.id) + self.name +
-                                  str(self.creation_date.timestamp())
-                              ).encode('utf-8'))
-            self.key = sha.hexdigest()
+            self.key = generate_key('{}{}'.format(self.user.id,
+                                    self.creation_date.timestamp()))
         return super(Token, self).save(*args, **kwargs)
