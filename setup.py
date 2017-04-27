@@ -8,6 +8,7 @@ setup(
     license='Copyright. All right reserved.',
     long_description=open('readme.md').read(),
     install_requires=[
-        'mongoengine==0.11.0',
+        'mongoengine==0.11',
+        'Werkzeug==0.12',
     ]
 )

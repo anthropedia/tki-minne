@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 
 from . import db
@@ -10,6 +11,23 @@ class User(db.Document):
     email = db.EmailField()
     roles = db.ListField(db.StringField())
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
+    _password = db.StringField(max_length=255)
+
+    def __init__(self, *args, **kwargs):
+        db.Document.__init__(self, *args, **kwargs)
+        if 'password' in kwargs:
+            self.password = kwargs['password']
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, password):
+        self._password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self._password, password)
 
     def __str__(self):
         if self.firstname and self.lastname:
