@@ -68,3 +68,13 @@ class Token(db.Document):
             self.key = generate_key('{}{}'.format(self.user.id,
                                     self.creation_date.timestamp()))
         return super(Token, self).save(*args, **kwargs)
+
+
+class Score(db.Document):
+    user = db.ReferenceField(User, required=True)
+    answers = db.ListField(required=True)
+    times = db.ListField()
+    creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
+
+    def __str__(self):
+        return ('score of {} on {}'.format(self.user, self.creation_date))
