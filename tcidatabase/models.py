@@ -8,7 +8,7 @@ from .utils import generate_key
 class User(db.Document):
     firstname = db.StringField()
     lastname = db.StringField()
-    email = db.EmailField()
+    email = db.EmailField(unique=True)
     roles = db.ListField(db.StringField())
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
     _password = db.StringField(max_length=255)
@@ -73,6 +73,7 @@ class Token(db.Document):
 
 class Score(db.Document):
     user = db.ReferenceField(User, required=True)
+    survey = db.StringField(required=True, max_length=20)
     answers = db.ListField(required=True)
     times = db.ListField()
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
