@@ -41,6 +41,7 @@ class Token(db.Document):
     user = db.ReferenceField(User, required=True)
     key = db.StringField(min_length=32, max_length=32, unique=True,
                          required=True)
+    survey = db.StringField(max_length=20, required=True)
     name = db.StringField(max_length=100)
     comment = db.StringField()
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
