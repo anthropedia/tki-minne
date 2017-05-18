@@ -1,4 +1,4 @@
-from flask import redirect
+from flask import redirect, g
 from flask_login import LoginManager, UserMixin, login_user, logout_user
 from .models import User as ModelUser
 
@@ -28,6 +28,7 @@ def load_user(user_id):
     auth_user = AuthUser()
     try:
         auth_user.user = ModelUser.objects.get(id=user_id)
+        g.user = auth_user
     except ModelUser.DoesNotExist:
         return None
     return auth_user

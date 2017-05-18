@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name='tci-database',
-    version='0.2',
+    version='0.3',
     author='Vincent Agnano',
     license='Copyright. All right reserved.',
     long_description=open('readme.md').read(),

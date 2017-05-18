@@ -5,6 +5,25 @@ from . import db
 from .utils import generate_key
 
 
+class Client(db.Document):
+    reference = db.StringField(max_length=50)
+    firstname = db.StringField(max_length=50)
+    middlename = db.StringField(max_length=50)
+    lastname = db.StringField(max_length=50, required=True)
+    email = db.EmailField(unique=True)
+    culture = db.StringField(max_length=2)
+    note = db.StringField()
+
+    def __str__(self):
+        if self.firstname and self.lastname:
+            return '{} {}'.format(self.firstname, self.lastname)
+        return self.lastname
+
+
+class ProfessionalProfile(db.EmbeddedDocument):
+    clients = db.ListField(db.ReferenceField(Client))
+
+
 class User(db.Document):
     firstname = db.StringField()
     lastname = db.StringField()
@@ -12,6 +31,7 @@ class User(db.Document):
     roles = db.ListField(db.StringField())
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
     _password = db.StringField(max_length=255)
+    professional_profile = db.EmbeddedDocumentField(ProfessionalProfile)
 
     def __init__(self, *args, **kwargs):
         db.Document.__init__(self, *args, **kwargs)
@@ -37,13 +57,10 @@ class User(db.Document):
         return 'user {}'.format(self.id)
 
 
-class Token(db.Document):
-    user = db.ReferenceField(User, required=True)
+class BaseToken:
     key = db.StringField(min_length=32, max_length=32, unique=True,
                          required=True)
     survey = db.StringField(max_length=20, required=True)
-    name = db.StringField(max_length=100)
-    comment = db.StringField()
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
     usage_date = db.DateTimeField()
 
@@ -53,6 +70,9 @@ class Token(db.Document):
     @property
     def is_valid(self):
         return self.usage_date is None
+
+    def get_user_field(self):
+        return self.user
 
     @property
     def is_dummy(self):
@@ -66,9 +86,24 @@ class Token(db.Document):
         if not self.creation_date:
             self.creation_date = datetime.datetime.utcnow()
         if not self.key:
-            self.key = generate_key('{}{}'.format(self.user.id,
+            self.key = generate_key('{}{}'.format(
+                                    self.get_user_field().id,
                                     self.creation_date.timestamp()))
-        return super(Token, self).save(*args, **kwargs)
+        return super(BaseToken, self).save(*args, **kwargs)
+
+
+class SingleToken(BaseToken, db.Document):
+    client = db.ReferenceField(Client, required=True)
+    provider = db.ReferenceField(User, required=True)
+
+    def get_user_field(self):
+        return self.client
+
+
+class ResearchToken(BaseToken, db.Document):
+    user = db.ReferenceField(User, required=True)
+    name = db.StringField(max_length=100)
+    comment = db.StringField()
 
 
 class Score(db.Document):
