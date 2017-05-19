@@ -92,7 +92,7 @@ class BaseToken:
         return super(BaseToken, self).save(*args, **kwargs)
 
 
-class SingleToken(BaseToken, db.Document):
+class SurveyToken(BaseToken, db.Document):
     client = db.ReferenceField(Client, required=True)
     provider = db.ReferenceField(User, required=True)
 
