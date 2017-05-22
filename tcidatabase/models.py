@@ -5,25 +5,6 @@ from . import db
 from .utils import generate_key
 
 
-class Client(db.Document):
-    reference = db.StringField(max_length=50)
-    firstname = db.StringField(max_length=50)
-    middlename = db.StringField(max_length=50)
-    lastname = db.StringField(max_length=50, required=True)
-    email = db.EmailField(unique=True)
-    culture = db.StringField(max_length=2)
-    note = db.StringField()
-
-    def __str__(self):
-        if self.firstname and self.lastname:
-            return '{} {}'.format(self.firstname, self.lastname)
-        return self.lastname
-
-
-class ProfessionalProfile(db.EmbeddedDocument):
-    clients = db.ListField(db.ReferenceField(Client))
-
-
 class User(db.Document):
     firstname = db.StringField()
     lastname = db.StringField()
@@ -31,7 +12,6 @@ class User(db.Document):
     roles = db.ListField(db.StringField())
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
     _password = db.StringField(max_length=255)
-    professional_profile = db.EmbeddedDocumentField(ProfessionalProfile)
 
     def __init__(self, *args, **kwargs):
         db.Document.__init__(self, *args, **kwargs)
@@ -55,6 +35,22 @@ class User(db.Document):
         elif self.email:
             return self.email
         return 'user {}'.format(self.id)
+
+
+class Client(db.Document):
+    reference = db.StringField(max_length=50)
+    provider = db.ReferenceField(User, required=True)
+    firstname = db.StringField(max_length=50)
+    middlename = db.StringField(max_length=50)
+    lastname = db.StringField(max_length=50, required=True)
+    email = db.EmailField()
+    culture = db.StringField(max_length=2)
+    note = db.StringField()
+
+    def __str__(self):
+        if self.firstname and self.lastname:
+            return '{} {}'.format(self.firstname, self.lastname)
+        return self.lastname
 
 
 class BaseToken:
