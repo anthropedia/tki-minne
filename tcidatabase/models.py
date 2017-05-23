@@ -46,6 +46,7 @@ class Client(db.Document):
     email = db.EmailField()
     culture = db.StringField(max_length=2)
     note = db.StringField()
+    creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
 
     def __str__(self):
         if self.firstname and self.lastname:
@@ -103,7 +104,7 @@ class ResearchToken(BaseToken, db.Document):
 
 
 class Score(db.Document):
-    user = db.ReferenceField(User, required=True)
+    client = db.ReferenceField(Client, required=True)
     survey = db.StringField(required=True, max_length=20)
     answers = db.ListField(required=True)
     times = db.ListField()
