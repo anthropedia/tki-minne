@@ -1,5 +1,7 @@
-from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
+
+from werkzeug.security import generate_password_hash, check_password_hash
+from xkcdpass import xkcd_password as pw_gen
 
 from . import db
 from .utils import generate_key
@@ -26,8 +28,23 @@ class User(db.Document):
     def password(self, password):
         self._password = generate_password_hash(password)
 
+    def set_password(self, password):
+        '''
+        A proxy for convenient use.
+        '''
+        self.password = password
+        return self
+
     def check_password(self, password):
         return check_password_hash(self._password, password)
+
+    def generate_password(self):
+        password = pw_gen.generate_xkcdpassword(
+            wordlist=pw_gen.generate_wordlist(min_length=3, max_length=6),
+            acrostic='good',
+        )
+        self.password = password
+        return password
 
     def __str__(self):
         if self.firstname and self.lastname:

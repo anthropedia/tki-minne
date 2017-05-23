@@ -11,5 +11,6 @@ setup(
         'mongoengine==0.11',
         'Werkzeug==0.12',
         'Flask-Login==0.4.0',
+        'xkcdpass<=1.10.999'
     ]
 )
