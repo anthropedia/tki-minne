@@ -1,1 +1,1 @@
-import mongoengine as db
+import mongoengine as db  # noqa: F401
