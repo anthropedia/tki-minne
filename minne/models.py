@@ -6,23 +6,26 @@ from . import db
 
 
 class Client(db.Document):
-    name = db.StringField(required=True)
-    reference = db.StringField()
+    reference = db.StringField(required=True)
     language = db.StringField(default='en', max_length=2)
     comment = db.StringField()
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
 
     def __str__(self):
-        return self.name
+        return self.reference
 
-    meta = {'ordering': ['-creation_date', 'name']}
+    @property
+    def assignments(self):
+        return Token.objets.filter(client=self)
+
+    meta = {'ordering': ['-creation_date']}
 
 
 class Token(db.Document):
     client = db.ReferenceField(Client, reverse_delete_rule=db.CASCADE)
     key = db.StringField(min_length=8, max_length=8, unique=True,
                          required=True)
-    provider = db.StringField(required=True)
+    provider = db.StringField()
     creation_date = db.DateTimeField(default=datetime.datetime.utcnow)
     usage_date = db.DateTimeField()
 
